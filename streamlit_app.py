@@ -117,6 +117,6 @@ if make_button:
         message_log.append({"role": "user", "content": user_prompt})
         resp, usage = generate_response(message_log)
         print(resp)
-        result += resp + "\n"
+        result += resp + "\n\n"
         counter += 1
         result_block.code(result)
