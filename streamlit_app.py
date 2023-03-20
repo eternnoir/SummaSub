@@ -62,7 +62,7 @@ def generate_response(message_log, tempe=0.7):
 st.title("SummaSub")
 st.write("Introducing SummaSub - a revolutionary tool that uses OpenAI to summarize SRT subtitles.")
 transcript_name = st.file_uploader(
-    "Upload your .vtt or .srt files", type=['vtt', 'srt'])
+    "Upload your .srt file", type=['srt'])
 col1, col2 = st.columns(2)
 openai_key = col1.text_input("OpenAI API Key", type="password")
 
