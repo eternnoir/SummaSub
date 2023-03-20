@@ -38,7 +38,7 @@ def read_srt_file(srt_text):
 def subs_to_string(subs):
     ret = ""
     for sub in subs:
-        ret += str(sub)+"\n"
+        ret += str(sub)
     return ret
 
 
@@ -100,16 +100,17 @@ if make_button:
     if total_characters > 0:
         sub_blocks.append(subs_to_string(part_subs))
     print(f"Load {len(sub_blocks)} blocks")
-    streamlit_progress_message = st.markdown(
+    streamlit_progress_message.markdown(
         f"Split file to {len(sub_blocks)} blocks")
 
     result = ""
     openai.api_key = openai_key
     counter = 0
+    result_block = st.code(result)
     for sub_b in sub_blocks:
         streamlit_progress_bar.progress(int((counter/len(sub_blocks))*100))
-        streamlit_progress_message = st.markdown(
-            f"Summarize {counter+1} block.")
+        streamlit_progress_message.markdown(
+            f"Summarize block {counter+1} .")
         user_prompt = summary_prompt.replace("{{your content here}}", sub_b)
         message_log = [
             {"role": "system", "content": "You are ChatGPT, a large language model trained by OpenAI."}]
@@ -118,4 +119,4 @@ if make_button:
         print(resp)
         result += resp + "\n"
         counter += 1
-    st.code(result)
+        result_block.code(result)
