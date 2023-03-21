@@ -141,3 +141,5 @@ if make_button:
         result += resp + "\n"
         counter += 1
         result_block.code(result)
+    streamlit_progress_bar.progress(100)
+    st.success('Done!', icon="✅")
