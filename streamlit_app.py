@@ -4,21 +4,41 @@ import pysrt
 import tiktoken
 
 summary_prompt = """
-You have been assigned the role of a professional video summarizer. You will be given a subtitle file with srt format.
+You have been assigned the role of a summarizer. You will be given a subtitle file with srt format.
 
-Your task is to read through the subtitles, group together coherent topics into main points, and add the next point when you feel the conversation has moved on to the next topic. Your aim is to provide readers with the key points of the video immediately and allow them to jump to specific time points using the time stamps you provide.
 
-When summarizing the points, you must also include the starting time point of the point in the video in the following format:
+SRT file Structure 
+Each subtitle has four parts in the SRT file.
 
-[(from timestamp) - (to timestamp)] - Summary of the point content.
-Example:
-[00:06:20,480 - 00:10:12,720] - Explain the unique defensive characteristics of bonds during economic recessions or market turbulence.
+A numeric counter indicating the number or position of the subtitle.
+Start and end time of the subtitle separated by –> characters
+Subtitle text in one or more lines.
+A blank line indicating the end of the subtitle.
+Example of SRT 
 
-Start:
+
+1
+00:05:00,400 --> 00:05:15,300
+This is an example of
+a subtitle.
+
+2
+00:05:16,400 --> 00:05:25,300
+This is an example of
+a subtitle - 2nd subtitle.
+
+To specify the time hours:minutes:seconds,milliseconds (00:00:00,000) format is used.
+
+------srt start------
 
 {{your content here}}
 
-The above is summarized into 2 key points. You may use context to determine the point. Respond in Traditional Chinese. You may use context to determine the point.
+------srt end------
+
+You must follow the following principles:
+- The format of the reply must be "[from time - end time] - Summary of the point content".
+- The time format must be hours:minutes:seconds,milliseconds
+- You can only output the content as {{number_of_points}} point.
 
 Please respond in Traditional Chinese.
 """
@@ -66,10 +86,8 @@ transcript_name = st.file_uploader(
 col1, col2 = st.columns(2)
 openai_key = col1.text_input("OpenAI API Key", type="password")
 
-text_engine_options = ["gpt-3.5-turbo", "text-davinci-003"]
-default_text_engine_option = "gpt-3.5-turbo"
-text_engine_select = col2.selectbox("Text Engine", options=text_engine_options, index=text_engine_options.index(
-    default_text_engine_option), help='Select the Open AI text engine for the summary')
+number_of_points = col2.number_input(
+    'Insert a number of keypoints each block', step=1, value=2, min_value=2)
 make_button = st.button("Summarize")
 
 if make_button:
@@ -112,6 +130,9 @@ if make_button:
         streamlit_progress_message.markdown(
             f"Summarize block {counter+1} .")
         user_prompt = summary_prompt.replace("{{your content here}}", sub_b)
+        user_prompt = user_prompt.replace(
+            "{{number_of_points}}", str(number_of_points))
+        print(user_prompt)
         message_log = [
             {"role": "system", "content": "You are ChatGPT, a large language model trained by OpenAI."}]
         message_log.append({"role": "user", "content": user_prompt})
@@ -119,4 +140,6 @@ if make_button:
         print(resp)
         result += resp + "\n\n"
         counter += 1
+        result = "\n".join(
+            line for line in result.splitlines() if line.strip())
         result_block.code(result)
